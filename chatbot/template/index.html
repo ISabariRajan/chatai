@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+</head>
+<body>
+    <form method="post" action="{% url 'chatbot_response' %}">
+        {% csrf_token %}
+        <label for="prompt">Prompt:</label>
+        <input type="text" id="prompt" name="prompt" />
+        <button type="submit">Send</button>
+    </form>
+    <div id="response"></div>
+
+    <script>
+        const form = document.querySelector('form');
+        const responseDiv = document.querySelector('#response');
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            fetch('{% url 'chatbot_response' %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // handle the response
+                if (data.response.startsWith('http')) {
+                    responseDiv.innerHTML = `<img src="${data.response}" />`;
+                } else {
+                    responseDiv.textContent = data.response;
+                }
+            })
+            .catch(error => console.error(error));
+        });
+    </script>
+</body>
+</html>
